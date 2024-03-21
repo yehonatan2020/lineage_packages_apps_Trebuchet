@@ -571,7 +571,10 @@ public class Launcher extends StatefulActivity<LauncherState>
         // Listen for screen turning off
         ScreenOnTracker.INSTANCE.get(this).addListener(mScreenOnListener);
         getSystemUiController().updateUiState(SystemUiController.UI_STATE_BASE_WINDOW,
-                Themes.getAttrBoolean(this, R.attr.isWorkspaceDarkText));
+                Themes.getAttrBoolean(this, R.attr.isWorkspaceDarkText)
+                || mSharedPrefs.getBoolean(KEY_DARK_STATUS_BAR, false));
+
+        mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
 
         mOverlayManager = getDefaultOverlay();
         PluginManagerWrapper.INSTANCE.get(this).addPluginListener(this,
@@ -685,6 +688,13 @@ public class Launcher extends StatefulActivity<LauncherState>
     @Override
     public void onPluginConnected(LauncherOverlayPlugin overlayManager, Context context) {
         switchOverlay(() -> overlayManager.createOverlayManager(this));
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences SharedPrefs, String key) {
+        if (key.equals(KEY_DARK_STATUS_BAR)) {
+            recreate();
+        }
     }
 
     @Override
